@@ -1,0 +1,179 @@
+--usuario postgres
+--senha postgresql
+
+-- -----------------------------------------------------
+-- TABLE
+-- -----------------------------------------------------
+
+CREATE SCHEMA ALERTAR;
+
+CREATE TABLE ALERTAR.USUARIO (
+    USU_ID          SERIAL PRIMARY KEY,
+    USU_NOME        VARCHAR(100) NOT NULL,
+    USU_EMAIL       VARCHAR(100) NOT NULL, 
+    USU_LOGIN       VARCHAR(100) NOT NULL,
+    USU_SENHA       VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE ALERTAR.SUBSTANCIA (
+    SUB_ID                     SERIAL PRIMARY KEY,
+    SUB_NOME                   VARCHAR(100) NOT NULL,  
+    SUB_CLASSE_RISCO           VARCHAR(10) NOT NULL, 
+    SUB_NUMERO_ONU             INTEGER NOT NULL, 
+    SUB_LIMITE_TOLERANCIA_PPM  INTEGER NULL
+);
+
+CREATE TABLE ALERTAR.MENSAGEM (
+    MSG_ID                     SERIAL PRIMARY KEY,
+    MSG_TITULO                 VARCHAR(100)  NOT NULL,
+    MSG_DESCRICAO              VARCHAR(4000) NOT NULL,
+    MSG_ATIVO                  INTEGER NOT NULL,
+    MSG_NIVEL_ALERTA           INTEGER NOT NULL,
+    SUB_ID                     INTEGER NULL REFERENCES ALERTAR.SUBSTANCIA,
+    GRU_ID                     INTEGER NULL REFERENCES ALERTAR.GRUPO
+);
+
+CREATE TABLE ALERTAR.SENSOR (
+    SEN_ID SERIAL PRIMARY KEY,
+    SEN_CODIGO VARCHAR(100) NOT NULL,
+    SEN_GPS_LATITUDE  INTEGER NULL,
+    SEN_GPS_LONGITUDE INTEGER NULL
+);
+
+CREATE TABLE ALERTAR.GRUPO (
+    GRU_ID          SERIAL PRIMARY KEY,
+    GRU_TOPIC       VARCHAR(100) NOT NULL,
+    GRU_CODIGO      VARCHAR(100) NOT NULL, 
+    GRU_DESCRICAO   VARCHAR(4000) NOT NULL
+);
+
+CREATE TABLE ALERTAR.LEITURA (
+    LEI_ID           SERIAL PRIMARY KEY,
+    LEI_DATA         TIMESTAMP NOT NULL,    
+    LEI_PPM          INTEGER NOT NULL, 
+    LEI_NIVEL_ALERTA INTEGER NOT NULL, 
+    LEI_XML          XML NOT NULL, 
+    SUB_ID           INTEGER NULL REFERENCES ALERTAR.SUBSTANCIA,  
+    SEN_ID           INTEGER NULL REFERENCES ALERTAR.SENSOR
+);
+
+CREATE TABLE ALERTAR.ALERTA (
+    ALE_ID                     SERIAL PRIMARY KEY,
+    ALE_DATA                   TIMESTAMP NOT NULL,    
+    MSG_ID                     INTEGER NULL REFERENCES ALERTAR.MENSAGEM,
+    SUB_ID                     INTEGER NULL REFERENCES ALERTAR.SUBSTANCIA,
+    GRU_ID                     INTEGER NULL REFERENCES ALERTAR.GRUPO,
+    ALE_TITULO                 VARCHAR(100)  NOT NULL,
+    ALE_DESCRICAO              VARCHAR(4000) NOT NULL,
+    ALE_STATUS                 VARCHAR(100)  NULL,
+    ALE_NIVEL_ALERTA           INTEGER NOT NULL
+);
+
+
+-- -----------------------------------------------------
+-- DML
+-- -----------------------------------------------------
+
+INSERT INTO ALERTAR.USUARIO (
+USU_ID,    
+USU_NOME,  
+USU_EMAIL, 
+USU_LOGIN, 
+USU_SENHA  
+) VALUES ( 
+NEXTVAL
+('alertar.usuario_usu_id_seq'), 
+'Defesa Civil', 
+'defesacivil@prefeitura.com.br', 
+'defesa_civil',
+'12345');
+
+INSERT INTO ALERTAR.SUBSTANCIA (
+SUB_ID,    
+SUB_NOME,  
+SUB_CLASSE_RISCO, 
+SUB_NUMERO_ONU, 
+SUB_LIMITE_TOLERANCIA_PPM  
+) VALUES ( 
+NEXTVAL('alertar.substancia_sub_id_seq'), 
+'Dióxido de Carbono',
+'2.2',
+1013,
+5000
+);
+
+
+INSERT INTO ALERTAR.SUBSTANCIA (
+    SUB_ID,
+    SUB_NOME, 
+    SUB_CLASSE_RISCO, 
+    SUB_NUMERO_ONU,
+    SUB_LIMITE_TOLERANCIA_PPM
+) VALUES (
+NEXTVAL('alertar.substancia_sub_id_seq'), 
+'Amônia',
+'2.3',
+1005,
+25
+);
+
+INSERT INTO ALERTAR.SUBSTANCIA (
+    SUB_ID,
+    SUB_NOME, 
+    SUB_CLASSE_RISCO, 
+    SUB_NUMERO_ONU,
+    SUB_LIMITE_TOLERANCIA_PPM
+) VALUES (
+NEXTVAL('alertar.substancia_sub_id_seq'), 
+'GLP',
+'2.1',
+1075,
+588
+);
+
+INSERT INTO ALERTAR.SUBSTANCIA (
+    SUB_ID,
+    SUB_NOME, 
+    SUB_CLASSE_RISCO, 
+    SUB_NUMERO_ONU,
+    SUB_LIMITE_TOLERANCIA_PPM
+) VALUES (
+NEXTVAL('alertar.substancia_sub_id_seq'), 
+'Cloro',
+'2.3',
+1017,
+0.8
+);
+
+
+INSERT INTO ALERTAR.GRUPO (
+    GRU_ID,
+    GRU_TOPIC,
+    GRU_CODIGO,
+    GRU_DESCRICAO
+) VALUES (
+NEXTVAL('alertar.grupo_gru_id_seq'), 
+'alertar',
+'ALERTA_ALL',
+'Envio de alerta para todos os usuários cadastrados'
+);
+
+
+
+
+INSERT INTO ALERTAR.MENSAGEM (
+    MSG_ID,                
+    MSG_TITULO,               
+    MSG_DESCRICAO,             
+    MSG_ATIVO,          
+    MSG_NIVEL_ALERTA,
+    SUB_ID,   
+    GRU_ID 
+) VALUES ( 
+NEXTVAL('alertar.mensagem_msg_id_seq'), 
+'Vazamento de gás em Conceiçãozinha', 
+'Evacuar área próxima de pelo menos 100 metros', 
+1,
+1,
+1,
+1);
